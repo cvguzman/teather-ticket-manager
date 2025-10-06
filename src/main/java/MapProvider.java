@@ -1,7 +1,7 @@
 public class MapProvider {
     // :::::: PROPIEDADES ::::::
 
-    private final String[] mapRows = {"A", "B", "C", "D"};
+    public final String[] mapRows = {"A", "B", "C", "D"};
     public String[][] mapColumns = {
             Constants.Map.AVAILABLE_SEAT_GROUP.clone(),
             Constants.Map.AVAILABLE_SEAT_GROUP.clone(),
