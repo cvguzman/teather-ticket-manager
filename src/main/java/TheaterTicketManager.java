@@ -98,6 +98,9 @@ public class TheaterTicketManager {
 
             // :::::: COMPRA DE ENTRADAS::::::
             while (!reservationFinished) {
+                boolean isValidSeat;
+                String seat;
+
                 System.out.println(Constants.Messages.BOOKING);
 
                 mapProvider.drawMap();
@@ -123,8 +126,7 @@ public class TheaterTicketManager {
                         System.out.println(Constants.Utils.SPACE);
                         System.out.println(Constants.Messages.SELECT_A_SEAT);
 
-                        boolean isValidSeat;
-                        String seat = scanner.nextLine().trim().toUpperCase();
+                        seat = scanner.nextLine().trim().toUpperCase();
 
                         isValidSeat = bookingManager.validateSeat(seat);
 
@@ -136,8 +138,19 @@ public class TheaterTicketManager {
 
                     case 2:
                         // :::::: ELIMINAR UNA RESERVA ::::::
-                        scanner.nextInt();
+                        System.out.println(Constants.Utils.SPACE);
+                        System.out.println(Constants.Messages.SELECT_A_SEAT);
+
+                        seat = scanner.nextLine().trim().toUpperCase();
+
+                        isValidSeat = bookingManager.validateSeat(seat);
+
+                        if (isValidSeat) {
+                            bookingManager.modifySeat(seat);
+                        }
+
                         continue;
+
                     case 3:
                         reservationFinished = true;
                         break;
