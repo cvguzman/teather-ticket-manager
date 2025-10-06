@@ -13,13 +13,21 @@ public class Constants {
                 ::::::: Compra de Entradas ::::::
                 Leyenda: [_] Disponible, [X] No disponible, [S] Seleccionado para reservar
                 """;
+        public static final String CUSTOMER_INFO = """
+                ::::::: Información del Cliente ::::::
+                Por favor ingrese los siguientes datos antes de proceder con la compra:
+                """;
         public static final String PROCEED_QUESTION = "Seleccione una opción para proceder:";
+        public static final String NAME_QUESTION = "Ingrese su nombre:";
+        public static final String AGE_QUESTION = "Ingrese su edad:";
+        public static final String SESSION_QUESTION = "¡Compra exitosa! Deseas algo más?";
         public static final String SELECT_A_SEAT = "Seleccione un asiento del mapa ingresando la letra de la fila y el número de la columna (ej: B1):";
     }
 
     public static class Options {
         public static final String[] PROCEED_QUESTION_OPTIONS = {"Continuar", "Volver"};
-        public static final String[] BOOKING_OPTIONS = {"Reservar un asiento", "Eliminar una reserva", "Volver"};
+        public static final String[] BOOKING_OPTIONS = {"Reservar", "Eliminar", "Comprar", "Salir"};
+        public static final String[] SESSION_OPTIONS = {"Volver a la Cartelera ", "Terminar mi sesión"};
     }
 
     public static class Map {

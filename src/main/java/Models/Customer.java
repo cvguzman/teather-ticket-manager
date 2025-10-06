@@ -1,8 +1,8 @@
 package Models;
 
 public class Customer {
-    String fullName;
-    int age;
+    public String fullName;
+    public int age;
 
     public Customer(String fullName, int age) {
         this.fullName = fullName;

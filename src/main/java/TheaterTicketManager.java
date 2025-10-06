@@ -33,7 +33,7 @@ public class TheaterTicketManager {
         // :::::: VARIABLES ::::::
         boolean sessionFinished = false;
         boolean reservationFinished = false;
-        boolean toNextStep = false;
+        boolean reservationCancelled = false;
 
         // :::::: INICIO DEL PROGRAMA ::::::
 
@@ -81,23 +81,20 @@ public class TheaterTicketManager {
             }
 
             option = scanner.nextInt();
+            scanner.nextLine();
 
             switch (option) {
                 case 1:
                     break;
                 case 2:
-                    scanner.nextInt();
                     continue;
                 default:
                     System.out.println(Constants.Error.INVALID_OPTION);
-                    scanner.nextInt();
                     continue;
             }
 
-            scanner.next();
-
-            // :::::: COMPRA DE ENTRADAS::::::
-            while (!reservationFinished) {
+            // :::::: PRE-COMPRA DE ENTRADAS ::::::
+            while (!reservationFinished && !reservationCancelled) {
                 boolean isValidSeat;
                 String seat;
 
@@ -152,16 +149,77 @@ public class TheaterTicketManager {
                         continue;
 
                     case 3:
-                        reservationFinished = true;
+                        if (bookingManager.getBookedSeats().isEmpty()) {
+                            System.out.println(Constants.Error.NO_RESERVATION);
+                            continue;
+                        } else {
+                            reservationFinished = true;
+                            break;
+                        }
+                    case 4:
+                        reservationCancelled = true;
                         break;
                     default:
                         System.out.println(Constants.Error.INVALID_OPTION);
-                        scanner.nextInt();
                         continue;
                 }
             }
 
-            sessionFinished = true;
+            if (reservationCancelled) {
+                continue;
+            }
+
+            // :::::: COMPRA DE ENTRADAS ::::::
+
+            String customerName;
+            int customerAge;
+
+            System.out.println(Constants.Utils.SPACE);
+            System.out.println(Constants.Messages.CUSTOMER_INFO);
+
+            System.out.println(Constants.Messages.NAME_QUESTION);
+
+             customerName = scanner.nextLine().trim().toUpperCase();
+
+            System.out.println(Constants.Messages.AGE_QUESTION);
+
+            customerAge = scanner.nextInt();
+
+            scanner.nextLine();
+
+            bookingManager.validateCustomer(customerName, customerAge);
+
+            System.out.println(Constants.Utils.SPACE);
+            System.out.println(Constants.Messages.SESSION_QUESTION);
+            for (int index = 0; index < Constants.Options.SESSION_OPTIONS.length; index++) {
+                System.out.println((index + 1) + Constants.Utils.DOT + Constants.Options.SESSION_OPTIONS[index]);
+            }
+
+            if (!scanner.hasNextInt()) {
+                System.out.println(Constants.Error.INVALID_OPTION);
+                scanner.next();
+                continue;
+            }
+
+            int lastOption = scanner.nextInt();
+
+            if (lastOption > Constants.Options.SESSION_OPTIONS.length || lastOption < 1) {
+                System.out.println(Constants.Error.INVALID_OPTION);
+                scanner.nextInt();
+                continue;
+            }
+
+            if (lastOption == 0) {
+                sessionFinished = false;
+                reservationFinished = false;
+                reservationCancelled = false;
+                continue;
+            }
+
+            if (lastOption == 1) {
+                sessionFinished = true;
+                scanner.close();
+            }
         }
     }
 }
