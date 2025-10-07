@@ -17,6 +17,7 @@ public class Constants {
                 ::::::: Información del Cliente ::::::
                 Por favor ingrese los siguientes datos antes de proceder con la compra:
                 """;
+        public static final String PLAY_INPUT = "Seleccione una obra para ver más detalles, ingresando un número:";
         public static final String PROCEED_QUESTION = "Seleccione una opción para proceder:";
         public static final String NAME_QUESTION = "Ingrese su nombre:";
         public static final String AGE_QUESTION = "Ingrese su edad:";

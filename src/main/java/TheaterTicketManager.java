@@ -1,5 +1,3 @@
-import Models.Play;
-
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -14,6 +12,7 @@ public class TheaterTicketManager {
         // :::::: VARIABLES ::::::
         int selectedOption;
         int selectedPlayIndex;
+        boolean toNextStep = false;
         boolean sessionFinished = false;
         boolean reservationFinished = false;
         boolean reservationCancelled = false;
@@ -22,12 +21,16 @@ public class TheaterTicketManager {
 
         // El programa finalizará cuando "sessionFinished = true"
         while (!sessionFinished) {
+            // :::::: BIENVENIDA Y SELECCION DE OBRAS ::::::
             System.out.println(Constants.Messages.WELCOME);
             System.out.println(Constants.Messages.WEEKLY_SCHEDULE);
 
             for (int index = 0; index < playProvider.getPlays().length; index++) {
                 System.out.println((index + 1) + Constants.Utils.DOT + playProvider.getPlays()[index].title);
             }
+
+            System.out.println(Constants.Utils.SPACE);
+            System.out.println(Constants.Messages.PLAY_INPUT);
 
             if (!scanner.hasNextInt()) {
                 System.out.println(Constants.Error.INVALID_OPTION);
@@ -36,15 +39,16 @@ public class TheaterTicketManager {
             }
 
             selectedOption = scanner.nextInt();
+            scanner.nextLine();
 
             if (selectedOption > playProvider.getPlays().length || selectedOption < 1) {
                 System.out.println(Constants.Error.INVALID_OPTION);
-                scanner.nextInt();
                 continue;
             }
 
             selectedPlayIndex = selectedOption - 1;
 
+            // :::::: DETALLES DE LA OBRA SELECCIONADA ::::::
             System.out.println(Constants.Messages.PLAY_DETAILS);
             System.out.println("Título Original: " + playProvider.getPlays()[selectedPlayIndex].title);
             System.out.println("Director: " + playProvider.getPlays()[selectedPlayIndex].directorName);
@@ -59,24 +63,33 @@ public class TheaterTicketManager {
                 System.out.println((index + 1) + Constants.Utils.DOT + Constants.Options.PROCEED_QUESTION_OPTIONS[index]);
             }
 
-            if (!scanner.hasNextInt()) {
-                System.out.println(Constants.Error.INVALID_OPTION);
-                scanner.next();
-                continue;
+            while (!toNextStep && !reservationCancelled) {
+                if (!scanner.hasNextInt()) {
+                    System.out.println(Constants.Error.INVALID_OPTION);
+                    scanner.nextLine();
+                    continue;
+                }
+
+                selectedOption = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (selectedOption) {
+                    case 1:
+                        playProvider.setPlay(playProvider.getPlays()[selectedPlayIndex]);
+                        toNextStep = true;
+                        break;
+                    case 2:
+                        reservationCancelled = true;
+                        break;
+                    default:
+                        System.out.println(Constants.Error.INVALID_OPTION);
+                        continue;
+                }
             }
 
-            selectedOption = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (selectedOption) {
-                case 1:
-                    playProvider.setPlay(playProvider.getPlays()[selectedPlayIndex]);
-                    break;
-                case 2:
-                    continue;
-                default:
-                    System.out.println(Constants.Error.INVALID_OPTION);
-                    continue;
+            if (reservationCancelled) {
+                reservationCancelled = false;
+                continue;
             }
 
             // :::::: PRE-COMPRA DE ENTRADAS ::::::
@@ -149,9 +162,11 @@ public class TheaterTicketManager {
                         System.out.println(Constants.Error.INVALID_OPTION);
                         continue;
                 }
+
             }
 
             if (reservationCancelled) {
+                reservationCancelled = false;
                 continue;
             }
 
@@ -160,12 +175,13 @@ public class TheaterTicketManager {
             String customerName;
             int customerAge;
 
+            // Preguntamos algunos datos del cliente para la boleta y validar si aplica para un descuento.
             System.out.println(Constants.Utils.SPACE);
             System.out.println(Constants.Messages.CUSTOMER_INFO);
 
             System.out.println(Constants.Messages.NAME_QUESTION);
 
-             customerName = scanner.nextLine().trim().toUpperCase();
+            customerName = scanner.nextLine().trim().toUpperCase();
 
             System.out.println(Constants.Messages.AGE_QUESTION);
 
@@ -173,7 +189,7 @@ public class TheaterTicketManager {
 
             scanner.nextLine();
 
-            bookingManager.validateCustomer(customerName, customerAge);
+            bookingManager.makePurchase(customerName, customerAge);
 
             System.out.println(Constants.Utils.SPACE);
             System.out.println(Constants.Messages.SESSION_QUESTION);
@@ -195,14 +211,15 @@ public class TheaterTicketManager {
                 continue;
             }
 
-            if (selectedOption == 0) {
+            if (selectedOption == 1) {
                 sessionFinished = false;
                 reservationFinished = false;
                 reservationCancelled = false;
+                toNextStep = false;
                 continue;
             }
 
-            if (selectedOption == 1) {
+            if (selectedOption == 2) {
                 sessionFinished = true;
                 scanner.close();
             }

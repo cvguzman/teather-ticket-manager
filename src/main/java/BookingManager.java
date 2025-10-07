@@ -1,4 +1,5 @@
 import Models.Customer;
+import Models.Discount;
 import Models.Seat;
 
 import java.text.NumberFormat;
@@ -13,6 +14,8 @@ public class BookingManager {
     private final List<Customer> customerList;
     private final Locale chileLocale;
     private final NumberFormat formatoCLP;
+
+    private Discount discountAvailable;
 
     BookingManager(MapProvider mapProvider, PlayProvider playProvider) {
         this.mapProvider = mapProvider;
@@ -80,12 +83,18 @@ public class BookingManager {
             return;
         }
 
-        if (bookedSeats.contains(seatID)) {
-            Seat seatCoordinates = createSeatObject(seatID);
+        boolean isValidSeat = false;
 
-            mapProvider.mapColumns[seatCoordinates.positionX][seatCoordinates.positionY] = Constants.Map.AVAILABLE_SEAT;
-            bookedSeats.remove(seatID);
-        } else {
+        for (Seat seat: bookedSeats) {
+            if (seat.id.equals(seatID)) {
+                mapProvider.mapColumns[seat.positionX][seat.positionY] = Constants.Map.AVAILABLE_SEAT;
+                bookedSeats.remove(seat);
+                isValidSeat = true;
+                break;
+            }
+        }
+
+        if (!isValidSeat) {
             System.out.println(Constants.Error.INVALID_SEAT);
         }
     }
@@ -94,13 +103,15 @@ public class BookingManager {
         return bookedSeats;
     }
 
-    public void validateCustomer(String name, int age) {
+    public void makePurchase(String name, int age) {
         Customer newCustomer = new Customer(name, age);
         String totalAmount = getTotalAmount(newCustomer);
         List<String> seats = new ArrayList<String>();
 
+        // Al validar los asientos en el recibo, los cambiamos de estado en el mapa por si existe otra compra.
         for (Seat seat: bookedSeats) {
             seats.add(seat.id);
+            mapProvider.mapColumns[seat.positionX][seat.positionY] = Constants.Map.OCCUPIED_SEAT;
         }
 
         // ::::::::::::::: IMPRIMIR RECIBO :::::::::::::::
@@ -109,9 +120,13 @@ public class BookingManager {
         System.out.println(":::::: BOLETA ::::::");
         System.out.println("Cliente: " + newCustomer.fullName);
         System.out.println("Obra: " + playProvider.getBookedPlay().title);
+        System.out.println("Horario: " + playProvider.getBookedPlay().getCompleteReleaseInfo());
         System.out.println("Asientos reservados: " + seats.toString());
         System.out.println("Cantidad de entradas: " + seats.size());
-        System.out.println("Precio final a pagar: " + totalAmount);
+        System.out.println("Precio final a pagar: "
+                + totalAmount
+                + Constants.Utils.SPACE + discountAvailable.getCompleteDiscountInfo()
+        );
         System.out.println("::::::::::::::::::::::");
     }
 
@@ -137,20 +152,19 @@ public class BookingManager {
     }
 
     private String getTotalAmount(Customer customer) {
-        int discountApplied;
         int totalDiscount;
         int totalAmount = 0;
 
-        if (customer.age > 60) {
-            discountApplied = 15;
-        } else if (customer.age < 26 && customer.age > 12) {
-            discountApplied = 10;
+        if (customer.age >= 60) {
+            discountAvailable = Discount.ELDERLY;
+        } else if (customer.age <= 25 && customer.age >= 12) {
+            discountAvailable = Discount.STUDENT;
         } else {
-            discountApplied = 0;
+            discountAvailable = Discount.NONE;
         }
 
         totalAmount += playProvider.getBookedPlay().price * bookedSeats.size();
-        totalDiscount = (totalAmount * discountApplied / 100);
+        totalDiscount = (totalAmount * discountAvailable.getPercentage() / 100);
         totalAmount = totalAmount - totalDiscount;
 
         return formatoCLP.format(totalAmount);
