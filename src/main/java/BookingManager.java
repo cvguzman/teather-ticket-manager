@@ -8,13 +8,15 @@ import java.util.Locale;
 
 public class BookingManager {
     private final MapProvider mapProvider;
+    private final PlayProvider playProvider;
     private final List<Seat> bookedSeats;
     private final List<Customer> customerList;
     private final Locale chileLocale;
     private final NumberFormat formatoCLP;
 
-    BookingManager(MapProvider mapProvider) {
+    BookingManager(MapProvider mapProvider, PlayProvider playProvider) {
         this.mapProvider = mapProvider;
+        this.playProvider = playProvider;
         bookedSeats = new ArrayList<Seat>();
         customerList = new ArrayList<Customer>();
         chileLocale = Locale.forLanguageTag("es-CL"); // Necesario para que el formateador de número sepa adaptarse a precios CLP.
@@ -106,7 +108,7 @@ public class BookingManager {
 
         System.out.println(":::::: BOLETA ::::::");
         System.out.println("Cliente: " + newCustomer.fullName);
-        System.out.println("Obra: " + "Aladin (REEMPLAZAR POR REFERENCIA)");
+        System.out.println("Obra: " + playProvider.getBookedPlay().title);
         System.out.println("Asientos reservados: " + seats.toString());
         System.out.println("Cantidad de entradas: " + seats.size());
         System.out.println("Precio final a pagar: " + totalAmount);
@@ -136,7 +138,8 @@ public class BookingManager {
 
     private String getTotalAmount(Customer customer) {
         int discountApplied;
-        int totalAmount;
+        int totalDiscount;
+        int totalAmount = 0;
 
         if (customer.age > 60) {
             discountApplied = 15;
@@ -146,7 +149,9 @@ public class BookingManager {
             discountApplied = 0;
         }
 
-        totalAmount = 5000 - (5000 * discountApplied / 100);
+        totalAmount += playProvider.getBookedPlay().price * bookedSeats.size();
+        totalDiscount = (totalAmount * discountApplied / 100);
+        totalAmount = totalAmount - totalDiscount;
 
         return formatoCLP.format(totalAmount);
     }

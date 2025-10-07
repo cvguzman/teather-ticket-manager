@@ -1,36 +1,19 @@
 import Models.Play;
+
 import java.util.Arrays;
 import java.util.Scanner;
 
 public class TheaterTicketManager {
     public static void main(String[] args) {
-        // :::::: CONSTANTES ::::::
-
-        final Play[] plays = {
-                new Play(
-                        "Aladin",
-                        "Ron Clements",
-                        new String[]{"Scott Weinger", "Robin Williams"},
-                        """
-                        Aladdín (Mena Massoud) es un joven ladrón de buen corazón que vive en la ciudad árabe de Agrabah junto a su mono acompañante Abu.
-                        Un día rescata y se hace amigo de la princesa Jasmín (Naomi Scott), quien se escabulló del palacio para explorar la ciudad, cansada de su vida sobre-protegida.
-                        """),
-                new Play(
-                        "Toy Story",
-                        "John Lasseter",
-                        new String[]{"Tom Hanks", "Tim Allen"},
-                        """
-                        La historia sigue las aventuras de un grupo de juguetes vivientes, en particular del vaquero Woody y el guardián espacial Buzz Lightyear.
-                        Si bien al principio rivalizan entre sí, conforme transcurre la trama se van volviendo amigos.
-                        """),
-        };
-
         // :::::: VARIABLES DE INSTANCIA ::::::
         Scanner scanner = new Scanner(System.in);
         MapProvider mapProvider = new MapProvider();
-        BookingManager bookingManager = new BookingManager(mapProvider);
+        PlayProvider playProvider = new PlayProvider();
+        BookingManager bookingManager = new BookingManager(mapProvider, playProvider);
 
         // :::::: VARIABLES ::::::
+        int selectedOption;
+        int selectedPlayIndex;
         boolean sessionFinished = false;
         boolean reservationFinished = false;
         boolean reservationCancelled = false;
@@ -42,8 +25,8 @@ public class TheaterTicketManager {
             System.out.println(Constants.Messages.WELCOME);
             System.out.println(Constants.Messages.WEEKLY_SCHEDULE);
 
-            for (int index = 0; index < plays.length; index++) {
-                System.out.println((index + 1) + Constants.Utils.DOT + plays[index].title);
+            for (int index = 0; index < playProvider.getPlays().length; index++) {
+                System.out.println((index + 1) + Constants.Utils.DOT + playProvider.getPlays()[index].title);
             }
 
             if (!scanner.hasNextInt()) {
@@ -52,20 +35,22 @@ public class TheaterTicketManager {
                 continue;
             }
 
-            int option = scanner.nextInt();
+            selectedOption = scanner.nextInt();
 
-            if (option > plays.length || option < 1) {
+            if (selectedOption > playProvider.getPlays().length || selectedOption < 1) {
                 System.out.println(Constants.Error.INVALID_OPTION);
                 scanner.nextInt();
                 continue;
             }
 
+            selectedPlayIndex = selectedOption - 1;
+
             System.out.println(Constants.Messages.PLAY_DETAILS);
-            System.out.println("TÍTULO ORIGINAL: " + plays[option - 1].title);
-            System.out.println("DIRECTOR: " + plays[option - 1].directorName);
-            System.out.println("REPARTO: " + Arrays.toString(plays[option - 1].cast));
-            System.out.println("SINOPSIS: " + plays[option - 1].sinopsis);
-            System.out.println("PRECIO: " + "$" + plays[option - 1].price);
+            System.out.println("Título Original: " + playProvider.getPlays()[selectedPlayIndex].title);
+            System.out.println("Director: " + playProvider.getPlays()[selectedPlayIndex].directorName);
+            System.out.println("Reparto: " + Arrays.toString(playProvider.getPlays()[selectedPlayIndex].cast));
+            System.out.println("Sinopsis: " + playProvider.getPlays()[selectedPlayIndex].sinopsis);
+            System.out.println("Precio: " + "$" + playProvider.getPlays()[selectedPlayIndex].price);
             System.out.println(Constants.Utils.SPACE);
 
             System.out.println(Constants.Messages.PROCEED_QUESTION);
@@ -80,11 +65,12 @@ public class TheaterTicketManager {
                 continue;
             }
 
-            option = scanner.nextInt();
+            selectedOption = scanner.nextInt();
             scanner.nextLine();
 
-            switch (option) {
+            switch (selectedOption) {
                 case 1:
+                    playProvider.setPlay(playProvider.getPlays()[selectedPlayIndex]);
                     break;
                 case 2:
                     continue;
@@ -113,10 +99,10 @@ public class TheaterTicketManager {
                     continue;
                 }
 
-                option = scanner.nextInt();
+                selectedOption = scanner.nextInt();
                 scanner.nextLine();
 
-                switch (option) {
+                switch (selectedOption) {
                     case 1:
                         // :::::: ADICIONAR UN ASIENTO ::::::
 
@@ -201,22 +187,22 @@ public class TheaterTicketManager {
                 continue;
             }
 
-            int lastOption = scanner.nextInt();
+            selectedOption = scanner.nextInt();
 
-            if (lastOption > Constants.Options.SESSION_OPTIONS.length || lastOption < 1) {
+            if (selectedOption > Constants.Options.SESSION_OPTIONS.length || selectedOption < 1) {
                 System.out.println(Constants.Error.INVALID_OPTION);
                 scanner.nextInt();
                 continue;
             }
 
-            if (lastOption == 0) {
+            if (selectedOption == 0) {
                 sessionFinished = false;
                 reservationFinished = false;
                 reservationCancelled = false;
                 continue;
             }
 
-            if (lastOption == 1) {
+            if (selectedOption == 1) {
                 sessionFinished = true;
                 scanner.close();
             }
